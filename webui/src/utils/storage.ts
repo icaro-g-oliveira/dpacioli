@@ -3,8 +3,8 @@
 
 import { CONFIG_DEFAULT } from '../Config';
 import { Conversation, Message, TimingReport } from './types';
-import Dexie, { Table } from 'dexie';
-
+import Dexie from 'dexie';
+import Table from "dexie"
 const event = new EventTarget();
 
 type CallbackConversationChanged = (convId: string) => void;
@@ -38,7 +38,7 @@ const StorageUtils = {
   async getAllConversations(): Promise<Conversation[]> {
     await migrationLStoIDB().catch(console.error); // noop if already migrated
     return (await db.conversations.toArray()).sort(
-      (a, b) => b.lastModified - a.lastModified
+      (a: { lastModified: number; }, b: { lastModified: number; }) => b.lastModified - a.lastModified
     );
   },
   /**
