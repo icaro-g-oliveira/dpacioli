@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "start ./llama/llama-server.exe -m ./models/gemma-3-4b-it-Q4_K_M.gguf && vite",
+    "dev": "vite",
     "build": "tsc -b && vite build",
     "format": "eslint . && prettier --write .",
     "lint": "eslint .",
