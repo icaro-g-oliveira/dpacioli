@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 import webview
@@ -20,6 +21,7 @@ def start_npm_preview():
     """Run 'npm run preview' to start the preview server."""
     try:
         print("Starting npm run preview...")
+        os.chdir("webui")
         subprocess.Popen(
             ['./node/node.exe', './node_modules/vite/bin/vite.js', 'preview'],
             stdout=subprocess.PIPE,
