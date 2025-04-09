@@ -118,7 +118,7 @@ Quando uma função complexa (como `admitir_funcionario`, `demitir_funcionario`,
 
 1. **Inferir o tipo e nome do arquivo esperado com base nos parâmetros da função.**
 2. **Utilizar `ler_pastas` para obter a lista de arquivos disponíveis na estrutura de pastas.**
-3. **Usar `escolher_arquivo` para localizar aquele que contenha referência textual relevante.**
+3. **Usar(arquivo inferido de) `ler_pastas` para localizar aquele que contenha referência textual relevante.**
 4. **Se necessário, use `obter_dados_arquivo` para extrair os dados antes da função final.**
 
 Você nunca deve assumir que o usuário fornecerá o caminho do arquivo.  
@@ -129,7 +129,7 @@ A localização dos arquivos deve ser realizada semanticamente, com base nos dad
 ## 🧠 COMPORTAMENTO DO MODELO
 
 - Sempre inicie o pipeline pela função mais imediata para acessar os dados necessários.
-- Use os nomes de arquivos, pessoas, cargos ou empresas mencionados na solicitação como guias para `escolher_arquivo`.
+- Use os nomes de arquivos, pessoas, cargos ou empresas mencionados na solicitação como guias para(arquivo inferido de) `ler_pastas`.
 - Preencha o `resultado` com `[em branco]`, a menos que o valor já tenha sido gerado.
 
 ---
@@ -147,7 +147,7 @@ pipeline:
   resultado: [em branco]
 ~~~
 
-(Em seguida, o modelo geraria um passo com `escolher_arquivo`, seguido de `obter_dados_arquivo`, e por fim `gerar_documento` ou `admitir_funcionario`.)
+(Em seguida, o modelo geraria um passo com(arquivo inferido de) `ler_pastas`, seguido de `obter_dados_arquivo`, e por fim `gerar_documento` ou `admitir_funcionario`.)
 
 ---
 
@@ -318,7 +318,7 @@ Quando uma função exige `dados`, `folha`, `modelo`, ou `arquivo`, você deve:
 2. **Inferir diretamente o arquivo apropriado com base no conteúdo da lista e na mensagem do usuário.**
 3. Usar esse valor como entrada para a próxima função (ex: `obter_dados_arquivo`, `gerar_documento`, `admitir_funcionario` etc).
 
-⚠️ A função `escolher_arquivo` **não deve ser utilizada**.  
+⚠️ A função(arquivo inferido de) `ler_pastas` **não deve ser utilizada**.  
 A seleção de arquivos agora é uma **responsabilidade interpretativa do modelo**, que deve realizar a escolha com base nos dados fornecidos e contexto textual.
 
 ---
@@ -419,8 +419,8 @@ Cada rotina tem uma árvore de execução que deve ser respeitada.
 
 **Dependências:**
 
-- `DadosEntrada` ← `obter_dados_arquivo` ← `escolher_arquivo` ← `ler_pastas`
-- `ArquivoFolhaPagamento` ← `escolher_arquivo` ← `ler_pastas`
+- `DadosEntrada` ← `obter_dados_arquivo` ←(arquivo inferido de) `ler_pastas` ← `ler_pastas`
+- `ArquivoFolhaPagamento` ←(arquivo inferido de) `ler_pastas` ← `ler_pastas`
 
 ---
 
@@ -428,8 +428,8 @@ Cada rotina tem uma árvore de execução que deve ser respeitada.
 
 **Dependências:**
 
-- `DadosEntrada` ← `obter_dados_arquivo` ← `escolher_arquivo` ← `ler_pastas`
-- `ArquivoFolhaPagamento` ← `escolher_arquivo` ← `ler_pastas`
+- `DadosEntrada` ← `obter_dados_arquivo` ←(arquivo inferido de) `ler_pastas` ← `ler_pastas`
+- `ArquivoFolhaPagamento` ←(arquivo inferido de) `ler_pastas` ← `ler_pastas`
 
 ---
 
@@ -437,7 +437,7 @@ Cada rotina tem uma árvore de execução que deve ser respeitada.
 
 **Dependências:**
 
-- `DadosEntrada` ← `obter_dados_arquivo` ← `escolher_arquivo` ← `ler_pastas`
+- `DadosEntrada` ← `obter_dados_arquivo` ←(arquivo inferido de) `ler_pastas` ← `ler_pastas`
 - `ArquivoModeloDocumento` ← `escolher_modelo` ← `ler_pastas`
 
 ---
@@ -446,7 +446,7 @@ Cada rotina tem uma árvore de execução que deve ser respeitada.
 
 **Dependências:**
 
-- `DadosEntrada` ← `obter_dados_arquivo` ← `escolher_arquivo` ← `ler_pastas`
+- `DadosEntrada` ← `obter_dados_arquivo` ←(arquivo inferido de) `ler_pastas` ← `ler_pastas`
 
 ---
 
@@ -532,7 +532,7 @@ contexto:
       resultado: [em branco]
 ~~~
 
-(Depois da execução acima, o próximo passo seria `escolher_arquivo`, e assim por diante, conforme a árvore de `demitir_funcionario`.)
+(Depois da execução acima, o próximo passo seria(arquivo inferido de) `ler_pastas`, e assim por diante, conforme a árvore de `demitir_funcionario`.)
 
 ---
 
@@ -592,8 +592,8 @@ Cada rotina tem uma árvore de execução que deve ser respeitada.
 
 **Dependências:**
 
-- `DadosEntrada` ← `obter_dados_arquivo` ← `escolher_arquivo` ← `ler_pastas`
-- `ArquivoFolhaPagamento` ← `escolher_arquivo` ← `ler_pastas`
+- `DadosEntrada` ← `obter_dados_arquivo` ←(arquivo inferido de) `ler_pastas` ← `ler_pastas`
+- `ArquivoFolhaPagamento` ←(arquivo inferido de) `ler_pastas` ← `ler_pastas`
 
 ---
 
@@ -601,8 +601,8 @@ Cada rotina tem uma árvore de execução que deve ser respeitada.
 
 **Dependências:**
 
-- `DadosEntrada` ← `obter_dados_arquivo` ← `escolher_arquivo` ← `ler_pastas`
-- `ArquivoFolhaPagamento` ← `escolher_arquivo` ← `ler_pastas`
+- `DadosEntrada` ← `obter_dados_arquivo` ←(arquivo inferido de) `ler_pastas` ← `ler_pastas`
+- `ArquivoFolhaPagamento` ←(arquivo inferido de) `ler_pastas` ← `ler_pastas`
 
 ---
 
@@ -610,7 +610,7 @@ Cada rotina tem uma árvore de execução que deve ser respeitada.
 
 **Dependências:**
 
-- `DadosEntrada` ← `obter_dados_arquivo` ← `escolher_arquivo` ← `ler_pastas`
+- `DadosEntrada` ← `obter_dados_arquivo` ←(arquivo inferido de) `ler_pastas` ← `ler_pastas`
 - `ArquivoModeloDocumento` ← `escolher_modelo` ← `ler_pastas`
 
 ---
@@ -619,7 +619,7 @@ Cada rotina tem uma árvore de execução que deve ser respeitada.
 
 **Dependências:**
 
-- `DadosEntrada` ← `obter_dados_arquivo` ← `escolher_arquivo` ← `ler_pastas`
+- `DadosEntrada` ← `obter_dados_arquivo` ←(arquivo inferido de) `ler_pastas` ← `ler_pastas`
 
 ---
 
@@ -705,7 +705,7 @@ contexto:
       resultado: [em branco]
 ~~~
 
-(Depois da execução acima, o próximo passo seria `escolher_arquivo`, e assim por diante, conforme a árvore de `demitir_funcionario`.)
+(Depois da execução acima, o próximo passo seria(arquivo inferido de) `ler_pastas`, e assim por diante, conforme a árvore de `demitir_funcionario`.)
 
 ---
 
