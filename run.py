@@ -2,6 +2,8 @@ import subprocess
 import sys
 import webview
 import threading
+from flask import Flask, request, jsonify
+
 
 def start_llama_server():
     """Start the Llama server in a new console window."""
@@ -37,8 +39,40 @@ def start_http_server_non_blocking():
     npm_thread.start()
     print("npm preview server is running in the background.")
 
+
+
+app = Flask(__name__)
+
+@app.route('/v1/chat/completions', methods=['POST'])
+def handle_chat():
+    payload = request.json
+    print("📥 Payload recebido:", payload)
+
+    messages = payload.get("messages", [])
+    print("🧠 Contexto da conversa:")
+    for msg in messages:
+        print(f"[{msg['role']}] {msg['content']}")
+
+    # Aqui você pode fazer qualquer lógica extra que quiser com essas mensagens
+
+    return jsonify({
+        "id": "resposta_fake",
+        "choices": [{
+            "message": {
+                "role": "assistant",
+                "content": "Tudo certo! Payload recebido e interpretado com sucesso."
+            }
+        }]
+    })
+
+def start_flask_server():
+    thread = threading.Thread(target=lambda: app.run(port=5002, debug=False))
+    thread.daemon = True
+    thread.start()
+
 if __name__ == '__main__':
     start_llama_server()
+    start_flask_server()
     start_http_server_non_blocking()
     # Open a webview window pointing to the preview URL
     webview.create_window('dPacioli Junior', 'http://localhost:4173/', width=800, height=700, frameless=True)

@@ -220,7 +220,7 @@ export const AppContextProvider = ({
         body: JSON.stringify(params),
         signal: abortController.signal,
       })
-      const fetchResponse = await fetch(`/v1/chat/completions`, {
+      const fetchResponse = await fetch(`http://localhost:5002/v1/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
