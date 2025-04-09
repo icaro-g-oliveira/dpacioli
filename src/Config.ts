@@ -18,7 +18,7 @@ export const CONFIG_DEFAULT = {
   excludeThoughtOnReq: true,
   // make sure these default values are in sync with `common.h`
   samplers: 'edkypmxt',
-  temperature: 0.8,
+  temperature: 0,
   dynatemp_range: 0.0,
   dynatemp_exponent: 1.0,
   top_k: 40,
