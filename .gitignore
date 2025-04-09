@@ -25,6 +25,5 @@ dist/
 *.sln
 *.sw?
 modes/
-node/
 tree.txt
 models
