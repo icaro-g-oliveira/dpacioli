@@ -1,5 +1,7 @@
 import daisyuiThemes from 'daisyui/src/theming/themes';
 import { isNumeric } from './utils/misc';
+import systemPrompt from '../systemPrompt.md?raw';
+
 
 export const isDev = import.meta.env.MODE === 'development';
 
@@ -10,7 +12,7 @@ export const CONFIG_DEFAULT = {
   // Note: in order not to introduce breaking changes, please keep the same data type (number, string, etc) if you want to change the default value. Do not use null or undefined for default value.
   // Do not use nested objects, keep it single level. Prefix the key if you need to group them.
   apiKey: '',
-  systemMessage: ' ',
+  systemMessage: systemPrompt,
   showTokensPerSecond: false,
   showThoughtInProgress: false,
   excludeThoughtOnReq: true,
