@@ -19,6 +19,7 @@ A linguagem segue a seguinte lógica:
 - A execução é orientada por **dependência semântica entre funções**
 - O modelo deve **interpretar diretamente os resultados das funções puras na pipeline de execução para determinar parâmetros para a próxima função na pipeline
 
+
 ## 📚 TIPOS PRIMITIVOS
 
 São axiomas de elementos existentes na realidade do sistema, representam arquivos e pastas passíveis de interação e manipulação
@@ -36,6 +37,8 @@ São axiomas de elementos existentes na realidade do sistema, representam arquiv
 - ConteudoArquivo: conteúdo em texto extraído de um arquivo
 - DadosEntrada: dados textuais utilizados para preencher modelos
 - VisualizacaoArvorePasta: visualização hierárquica textual de um diretório
+- ArquivoDeCadastramento: Arquivos de conteúdo visuais (formatos de imagem e pdfs) contendo dados cadastrais pessoais ou jurídicos (a cpf's e cnpj's) 
+
 
 ## 📚 FUNÇÕES PURAS
 ---
