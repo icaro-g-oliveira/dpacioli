@@ -1,0 +1,13 @@
+contexto:
+mensagens: [ "Preciso registrar a admissão de Amanda Oliveira no sistema de folha." ]
+intencao: admitir_funcionario
+status:
+realizado: false
+em_execucao: true
+pipeline:
+- função: ler_pastas
+parâmetros: { caminho: "dados/funcionarios" }
+resultado: ["amanda_oliveira.json", "lucas_martins.json"]
+- função: obter_dados_arquivo
+parâmetros: { arquivo: "amanda_oliveira.json" }
+resultado: "nome: Amanda Oliveira, cargo: Auxiliar Administrativo, salário: 3200"
