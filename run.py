@@ -146,17 +146,6 @@ def handle_chat():
     payload = request.json
     print("📥 Payload recebido:", payload)
 
-    url = "http://localhost:8080/v1/chat/completions"
-    
-    """ 
-        TODO: 
-            Parse nesse payload em:
-                ```ebnf
-                contexto:
-                    mensagens: [ ... ]
-                ```
-    """
-
     try:
         data = request.get_json()
         messages = data.get("messages", [])
