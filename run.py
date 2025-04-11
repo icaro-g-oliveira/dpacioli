@@ -48,22 +48,31 @@ def handle_chat():
     payload = request.json
     print("📥 Payload recebido:", payload)
 
-    messages = payload.get("messages", [])
-    print("🧠 Contexto da conversa:")
-    for msg in messages:
-        print(f"[{msg['role']}] {msg['content']}")
+    model = payload.get("model", "llama3")
+    temperatura = payload.get("temperature", 0.7)
+    max_tokens = payload.get("max_tokens", 512)
+    contexto = payload.get("messages", [])
 
-    # Aqui você pode fazer qualquer lógica extra que quiser com essas mensagens
+    url = "http://localhost:8080/v1/chat/completions"
+    headers = {
+        "Content-Type": "application/json"
+    }
 
-    return jsonify({
-        "id": "resposta_fake",
-        "choices": [{
-            "message": {
-                "role": "assistant",
-                "content": "Tudo certo! Payload recebido e interpretado com sucesso."
-            }
-        }]
-    })
+    proxy_payload = {
+        "model": model,
+        "messages": contexto,
+        "temperature": temperatura,
+        "max_tokens": max_tokens,
+        "stream": False
+    }
+
+    try:
+        resposta = requests.post(url, headers=headers, json=proxy_payload)
+        resposta.raise_for_status()
+        return jsonify(resposta.json())
+    except requests.RequestException as e:
+        print("❌ Erro na requisição ao llama-server:", e)
+        return jsonify({"error": "Erro ao processar requisição no llama-server"}), 500
 
 def start_flask_server():
     thread = threading.Thread(target=lambda: app.run(port=5002, debug=False))
