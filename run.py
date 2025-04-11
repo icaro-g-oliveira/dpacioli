@@ -2,8 +2,8 @@ import subprocess
 import sys
 import webview
 import threading
+import requests
 from flask import Flask, request, jsonify
-
 
 def start_llama_server():
     """Start the Llama server in a new console window."""
@@ -38,8 +38,6 @@ def start_http_server_non_blocking():
     npm_thread.daemon = True  # Ensure the thread terminates when the main program ends
     npm_thread.start()
     print("npm preview server is running in the background.")
-
-
 
 app = Flask(__name__)
 
@@ -83,6 +81,7 @@ if __name__ == '__main__':
     start_llama_server()
     start_flask_server()
     start_http_server_non_blocking()
+
     # Open a webview window pointing to the preview URL
     webview.create_window('dPacioli Junior', 'http://localhost:4173/', width=800, height=700, frameless=True)
     webview.start()
