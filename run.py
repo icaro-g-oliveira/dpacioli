@@ -18,7 +18,11 @@ def start_llama_server():
         print(f"Error starting Llama server: {e}")
         sys.exit(1)
 
+""" TODO: decorar com @app.route("/") """
 def start_npm_preview():
+    """ TODO: 
+            Substituir o corpo pelo serviço de dist/index.html
+    """
     """Run 'npm run preview' to start the preview server."""
     try:
         print("Starting npm run preview...")
@@ -43,28 +47,23 @@ app = Flask(__name__)
 
 @app.route('/v1/chat/completions', methods=['POST'])
 def handle_chat():
+    
     payload = request.json
     print("📥 Payload recebido:", payload)
 
-    model = payload.get("model", "llama3")
-    temperatura = payload.get("temperature", 0.7)
-    max_tokens = payload.get("max_tokens", 512)
-    contexto = payload.get("messages", [])
-
     url = "http://localhost:8080/v1/chat/completions"
-    headers = {
-        "Content-Type": "application/json"
-    }
-
-    proxy_payload = {
-        "model": model,
-        "messages": contexto,
-        "temperature": temperatura,
-        "max_tokens": max_tokens,
-        "stream": False
-    }
+    
+    """ 
+        TODO: 
+            Parse nesse payload em:
+                ```ebnf
+                contexto:
+                    mensagens: [ ... ]
+                ```
+    """
 
     try:
+        """ Dar request para o endereço da execução llama-server em start_llama_server: localhost:8080/v1/chat/completions"""
         resposta = requests.post(url, headers=headers, json=proxy_payload)
         resposta.raise_for_status()
         return jsonify(resposta.json())
@@ -72,18 +71,21 @@ def handle_chat():
         print("❌ Erro na requisição ao llama-server:", e)
         return jsonify({"error": "Erro ao processar requisição no llama-server"}), 500
 
-def start_flask_server():
+def start_flask_server(): 
     thread = threading.Thread(target=lambda: app.run(port=5002, debug=False))
     thread.daemon = True
     thread.start()
 
 if __name__ == '__main__':
     start_llama_server()
-    start_flask_server()
     start_http_server_non_blocking()
 
-    # Open a webview window pointing to the preview URL
+
+    """ TODO: direcionar o webview para a porta 5002 do flask server"""
+    start_flask_server()
     webview.create_window('dPacioli Junior', 'http://localhost:4173/', width=800, height=700, frameless=True)
+    
+    
     webview.start()
 
     input("Press Enter to continue...")  # Keeps the script running to maintain the processes.
