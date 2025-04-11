@@ -454,3 +454,17 @@ contexto:
 * ❌ função com nome que não existe na DSL
 * ❌ parâmetros sem virem de função anterior ou sem validar no `files_tree`
 * ❌ `resultado` com dados que você mesmo inventou
+
+---
+
+
+
+## 🟢 Como saber que a rotina foi finalizada com sucesso
+
+Quando você terminar de executar a função `intencao`,  **isso significa que a rotina foi concluída** .
+
+Isso acontece  **somente quando** :
+
+1. Todos os **parâmetros necessários** foram preenchidos com dados reais (vindos de `resultado` de outras funções)
+2. A função principal (`intencao`) foi **executada com sucesso**
+3. O campo `resultado:` da função `intencao` está **preenchido**
