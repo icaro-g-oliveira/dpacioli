@@ -160,7 +160,7 @@ def handle_chat():
         data = request.get_json()
         messages = data.get("messages", [])
         mensagem_usuario = next((m["content"] for m in reversed(messages) if m["role"] == "user"), "")
-        root_path = data.get("root_path", "clientes/tecnova")  # Caminho padrão opcional
+        root_path = data.get("root_path", "ambiente fictício\clientes")  # Caminho padrão opcional
 
         estrutura = gerar_estrutura_arquivos(root_path)
         prompt = construir_prompt(mensagem_usuario, estrutura)
