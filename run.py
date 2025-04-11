@@ -1,3 +1,4 @@
+import traceback
 import subprocess
 import sys
 import webview
@@ -174,7 +175,10 @@ def handle_chat():
         })
 
     except Exception as e:
-        return jsonify({"erro": str(e)}), 500
+           
+        traceback_str = traceback.format_exc()
+        print("🚨 Erro no processamento:\n", traceback_str)
+        return jsonify({"erro": str(e), "trace": traceback_str}), 500
 
 def start_flask_server(): 
     thread = threading.Thread(target=lambda: app.run(port=5002, debug=False))
