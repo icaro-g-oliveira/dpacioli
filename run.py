@@ -12,6 +12,20 @@ import re
 import yaml
 # --- Funções de execução ---
 
+def start_llama_server():
+    """Start the Llama server in a new console window."""
+    try:
+        subprocess.Popen(
+            ['./llama/llama-server.exe', '-m', './models/gemma-3-4b-it-Q4_K_M.gguf'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        print("Llama server started successfully.")
+    except Exception as e:
+        print(f"Error starting Llama server: {e}")
+        sys.exit(1)
+
+
 def obter_dados_arquivo(caminho):
     with open(caminho, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -90,41 +104,36 @@ def extrair_contexto_ebnf(resposta):
     return yaml.safe_load(match.group(1))
 
 def executar_pipeline(contexto):
-    pipeline = contexto["pipeline"]
+    pipeline = contexto.get("pipeline", [])
+    status = contexto.setdefault("status", {})
+    status["em_execucao"] = True
+    status["realizado"] = False
+
     memoria = {}
 
     for etapa in pipeline:
         funcao = etapa["função"]
-        parametros = etapa["parâmetros"]
+        parametros = etapa.get("parâmetros", {})
 
+        # Preenchimento de parâmetros vazios com outputs anteriores
         for chave, valor in parametros.items():
             if isinstance(valor, dict) and not valor:
-                if chave == "DadosEmpresa":
-                    parametros[chave] = memoria.get("obter_dados_arquivo", {})
-                elif chave == "ModeloDocumento":
-                    parametros[chave] = memoria.get("escolher_modelo", {})
+                valor_substituido = memoria.get(chave) or memoria.get(funcao) or {}
+                parametros[chave] = valor_substituido
 
         func = funcoes_disponiveis.get(funcao)
         if not func:
             raise Exception(f"Função '{funcao}' não implementada.")
+
         resultado = func(**parametros)
         etapa["resultado"] = resultado
         memoria[funcao] = resultado
 
+    status["realizado"] = True
+    status["em_execucao"] = False
+
     return contexto
 
-def start_llama_server():
-    """Start the Llama server in a new console window."""
-    try:
-        subprocess.Popen(
-            ['./llama/llama-server.exe', '-m', './models/gemma-3-4b-it-Q4_K_M.gguf'],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        print("Llama server started successfully.")
-    except Exception as e:
-        print(f"Error starting Llama server: {e}")
-        sys.exit(1)
 
 
 
@@ -142,32 +151,51 @@ def servir_index():
 
 @app.route('/v1/chat/completions', methods=['POST'])
 def handle_chat():
-    
-    payload = request.json
+    payload = request.get_json()
     print("📥 Payload recebido:", payload)
 
     try:
-        data = request.get_json()
-        messages = data.get("messages", [])
-        mensagem_usuario = next((m["content"] for m in reversed(messages) if m["role"] == "user"), "")
-        root_path = data.get("root_path", "ambiente fictício\clientes")  # Caminho padrão opcional
+        messages = payload.get("messages", [])
+        root_path = payload.get("root_path", "./ambiente fictício/clientes")
 
+        # Extrair a última mensagem do usuário
+        mensagem_usuario = next(
+            (m["content"] for m in reversed(messages) if m.get("role") == "user"),
+            None
+        )
+
+        if not mensagem_usuario:
+            raise ValueError("Mensagem do usuário não encontrada no payload.")
+
+        # Gerar estrutura de arquivos
         estrutura = gerar_estrutura_arquivos(root_path)
+
+        # Construir prompt com mensagem e estrutura
         prompt = construir_prompt(mensagem_usuario, estrutura)
+
+        # Enviar para o modelo LLaMA local
         resposta_modelo = enviar_para_llama(prompt)
+
+        # Extrair objeto de contexto no formato correto
         contexto = extrair_contexto_ebnf(resposta_modelo)
+
+        # Executar a pipeline contida no contexto
         resultado = executar_pipeline(contexto)
 
+        # Retornar o novo contexto executado
         return jsonify({
             "contexto": contexto,
             "resultado": resultado
         })
 
     except Exception as e:
-           
         traceback_str = traceback.format_exc()
         print("🚨 Erro no processamento:\n", traceback_str)
-        return jsonify({"erro": str(e), "trace": traceback_str}), 500
+        return jsonify({
+            "erro": str(e),
+            "trace": traceback_str
+        }), 500
+        
 
 def start_flask_server(): 
     thread = threading.Thread(target=lambda: app.run(port=5002, debug=False))
