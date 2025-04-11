@@ -401,10 +401,6 @@ contexto:
 <estrutura literal de pastas e arquivos>
 "
 
-  status:
-    realizado: <true | false>
-    em_execucao: <true | false>
-
   intencao: <nome_da_funcao_principal>
 
   pipeline:
