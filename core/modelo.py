@@ -1,13 +1,14 @@
 from llama_cpp import Llama
-from ferramentas import tools
+from open_ai_ferramentas import tools
 import os
 import json
-from funcoes import mapear, caminho_relativo
+from funcoes import caminho_relativo
 
 BASE_DIR = os.getcwd()
+EXECUTE_PROMPT_PATH = "executePrompt.md"
 
 # 🚀 Carrega o system_prompt base só uma vez
-with open("system_prompt.md", "r", encoding="utf-8") as f:
+with open(EXECUTE_PROMPT_PATH, "r", encoding="utf-8") as f:
     system_instrucoes = f.read()
 
 llm = Llama(
@@ -21,19 +22,21 @@ llm = Llama(
 )
 
 
-def gerar_arvore_de_arquivos(caminho: str) -> str:
-    estrutura = []
-    for raiz, pastas, arquivos in os.walk(caminho):
+def gerar_arvore_de_arquivos(caminho_base: str) -> str:
+    estrutura = {}
+    for raiz, _, arquivos in os.walk(caminho_base):
         if "__pycache__" in raiz:
             continue
-        nivel = raiz.replace(caminho, '').count(os.sep)
-        indent = '  ' * nivel
-        estrutura.append(f"{indent}- {os.path.basename(raiz)}/")
-        subindent = '  ' * (nivel + 1)
-        for f in arquivos:
-            if not f.endswith(".pyc"):
-                estrutura.append(f"{subindent}- {f}")
-    return "\n".join(estrutura)
+        rel_path = os.path.relpath(raiz, caminho_base)
+        estrutura[rel_path] = [f for f in arquivos if not f.endswith(".pyc")]
+
+    linhas = []
+    for pasta, arquivos in estrutura.items():
+        if arquivos:
+            linhas.append(f"📁 {pasta}/")
+            linhas.append(f"- {', '.join(arquivos)}")
+    return "\n".join(linhas)
+
 
 def corrigir_args_alucinados(nome_funcao: str, args: dict) -> tuple[str, dict]:
     caminho = args.get("caminho", "")
@@ -53,24 +56,23 @@ def corrigir_args_alucinados(nome_funcao: str, args: dict) -> tuple[str, dict]:
         }
     return nome_funcao, args
 
-def inferir_funcao(mensagem: str):
+def inferir_(mensagem: str):
     # 🌳 Gera apenas a árvore no momento da chamada
     arvore = gerar_arvore_de_arquivos(BASE_DIR)
 
     # 🔧 Usa o system_prompt pré-carregado + árvore atual
-    system_prompt = f"""
-    Você interpreta comandos do usuário e gera chamadas de função.
-    Quando o usuário mencionar ações sobre múltiplos arquivos, como 'todos os arquivos da pasta X',
-    você deve utilizar a função `mapear`, mas apenas gerar:
-    - o nome da função desejada\n
-    - uma lista de pasta / arquivo.extensao
-    \n\n📂 Estrutura de arquivos:\n\n{arvore}
-    """
+    system_prompt = system_prompt = f"""
+        {system_instrucoes}
+        📁 Estrutura de arquivos:
+        {arvore}
+        """
 
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": mensagem}
     ]
+    
+    print(messages)
     
     output = llm.create_chat_completion(
         messages=messages,
@@ -88,3 +90,27 @@ def inferir_funcao(mensagem: str):
         funcoes_corrigidas.append((nome_corrigido, args_corrigidos))
 
     return funcoes_corrigidas
+
+
+
+def interpretar_para_gramatica(mensagem: str, gramatica: str) -> str:
+    prompt = f"""
+    Você está interpretando comandos naturais do usuário e convertendo-os para a seguinte gramática formal:
+
+    {gramatica}
+
+    📎 Exemplo:
+    Entrada: "quero apagar o arquivo contrato.txt"
+    Saída: deletar(caminho="contrato.txt")
+
+    Agora, interprete e converta:
+    Entrada: "{mensagem}"
+    Saída:
+    """.strip()
+
+    resposta = llm.create_chat_completion([
+        {"role": "system", "content": prompt},
+        {"role": "user", "content": mensagem}
+    ])
+
+    return resposta["choices"][0]["message"]["content"].strip()

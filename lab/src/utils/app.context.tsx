@@ -11,9 +11,8 @@ import StorageUtils from './storage';
 import {
   filterThoughtFromMsgs,
   normalizeMsgsForAPI,
-  getSSEStreamAsync,
 } from './misc';
-import { BASE_URL, CONFIG_DEFAULT, isDev } from '../Config';
+import { CONFIG_DEFAULT, isDev } from '../Config';
 import { matchPath, useLocation, useNavigate } from 'react-router';
 
 interface AppContextValue {
@@ -210,7 +209,7 @@ export const AppContextProvider = ({
       };
 
       // send request
-      const fetchResponse = await fetch(`${BASE_URL}/v1/chat/completions`, {
+      console.log("request:", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -220,38 +219,81 @@ export const AppContextProvider = ({
         },
         body: JSON.stringify(params),
         signal: abortController.signal,
+      })
+      const response = await fetch("http://localhost:5002/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {}),
+        },
+        body: JSON.stringify({
+          ...params,
+          messages,
+          stream: true,
+        }),
       });
-      if (fetchResponse.status !== 200) {
-        const body = await fetchResponse.json();
-        throw new Error(body?.error?.message || 'Unknown error');
+      
+      const responseData = await response.json();
+      const tarefaId = responseData?.id;
+      
+      if (!tarefaId) {
+        throw new Error("ID da tarefa não retornado pelo backend.");
       }
-      const chunks = getSSEStreamAsync(fetchResponse);
-      for await (const chunk of chunks) {
-        // const stop = chunk.stop;
-        if (chunk.error) {
-          throw new Error(chunk.error?.message || 'Unknown error');
+
+      let fullContent = "";
+
+      const eventSource = new EventSource(`http://localhost:5002/v1/chat/stream?id=${tarefaId}`);
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          const chunk = data.choices?.[0]?.delta?.content || data.choices?.[0]?.message?.content;
+
+          if (chunk) {
+            fullContent += chunk;
+            pendingMsg = {
+              ...pendingMsg,
+              content: fullContent,
+            };
+            setPending(convId, pendingMsg);
+            onChunk(pendingId); // scroll e update visual
+          }
+        } catch (err) {
+          console.error("Erro ao processar chunk SSE:", err);
         }
-        const addedContent = chunk.choices[0].delta.content;
-        const lastContent = pendingMsg.content || '';
-        if (addedContent) {
-          pendingMsg = {
-            ...pendingMsg,
-            content: lastContent + addedContent,
-          };
-        }
-        const timings = chunk.timings;
-        if (timings && config.showTokensPerSecond) {
-          // only extract what's really needed, to save some space
-          pendingMsg.timings = {
-            prompt_n: timings.prompt_n,
-            prompt_ms: timings.prompt_ms,
-            predicted_n: timings.predicted_n,
-            predicted_ms: timings.predicted_ms,
-          };
-        }
-        setPending(convId, pendingMsg);
-        onChunk(); // don't need to switch node for pending message
-      }
+      };
+
+      eventSource.onerror = (err) => {
+        console.error("Erro no stream SSE:", err);
+        eventSource.close();
+        setPending(convId, null);
+      };
+      // Processar resposta JSON única
+      // const responseData = await fetchResponse.json(); // <-- Processa JSON completo
+
+      // if (!fetchResponse.ok) {
+      //   // Verifica status APÓS ler o JSON
+      //   throw new Error(
+      //     responseData?.error?.message || `HTTP error ${fetchResponse.status}`
+      //   );
+      // }
+
+      // // Extrair conteúdo da resposta única
+      // if (responseData.choices && responseData.choices[0]?.message?.content) {
+      //   const finalContent = responseData.choices[0].message.content;
+      //   // Atualiza o estado final da mensagem 'pendingMsg' de uma vez
+      //   pendingMsg = {
+      //     ...pendingMsg,
+      //     content: finalContent,
+      //     // Adiciona timings se o backend os retornar no JSON final (improvável sem stream)
+      //     timings: responseData.usage, // Ou onde quer que os timings finais estejam
+      //   };
+      //   setPending(convId, pendingMsg); // Atualiza estado uma vez com a msg final
+      //   // NÃO precisa chamar onChunk dentro de um loop aqui
+      // } else {
+      //   console.warn('Resposta inesperada ou vazia:', responseData);
+      //   throw new Error('Resposta inesperada ou vazia do servidor.');
+      // }
     } catch (err) {
       setPending(convId, null);
       if ((err as Error).name === 'AbortError') {

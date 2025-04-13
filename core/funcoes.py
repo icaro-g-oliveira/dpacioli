@@ -209,7 +209,7 @@ def adicionar_texto_arquivo(caminho: str, conteudo: str) -> str:
 
     os.makedirs(os.path.dirname(caminho_abs), exist_ok=True)
     with open(caminho_abs, "a", encoding="utf-8") as f:
-        f.write(conteudo)
+        f.write("\n"+conteudo)
 
     return f"Texto adicionado ao final do arquivo '{caminho}'."
 

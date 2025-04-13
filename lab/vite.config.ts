@@ -4,6 +4,8 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
 import path from 'node:path';
 import fs from 'node:fs';
 import zlib from 'node:zlib';
+import  string  from 'vite-plugin-string';
+
 
 /* eslint-disable */
 
@@ -18,7 +20,7 @@ const GUIDE_FOR_FRONTEND = `
 -->
 `.trim();
 
-const FRONTEND_PLUGINS = [react()];
+const FRONTEND_PLUGINS = [react(),string()];
 
 const BUILD_PLUGINS = [
   ...FRONTEND_PLUGINS,
@@ -69,6 +71,7 @@ export default defineConfig({
   // @ts-ignore
   plugins: process.env.ANALYZE ? FRONTEND_PLUGINS : BUILD_PLUGINS,
   server: {
+    // open: true,
     proxy: {
       '/v1': 'http://localhost:8080',
     },

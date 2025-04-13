@@ -1,23 +1,23 @@
-import daisyuiThemes from 'daisyui/theme/object';
+import daisyuiThemes from 'daisyui/src/theming/themes';
 import { isNumeric } from './utils/misc';
-export const isDev = import.meta.env.MODE === 'development';
+
+
+export const isDev = 'development';
 
 // constants
-export const BASE_URL = new URL('.', document.baseURI).href
-  .toString()
-  .replace(/\/$/, '');
+export const BASE_URL = 'http://127.0.0.1:5002';
 
 export const CONFIG_DEFAULT = {
   // Note: in order not to introduce breaking changes, please keep the same data type (number, string, etc) if you want to change the default value. Do not use null or undefined for default value.
   // Do not use nested objects, keep it single level. Prefix the key if you need to group them.
   apiKey: '',
-  systemMessage: '',
+  systemMessage: "",
   showTokensPerSecond: false,
   showThoughtInProgress: false,
   excludeThoughtOnReq: true,
   // make sure these default values are in sync with `common.h`
   samplers: 'edkypmxt',
-  temperature: 0.8,
+  temperature: 0,
   dynatemp_range: 0.0,
   dynatemp_exponent: 1.0,
   top_k: 40,
