@@ -4,7 +4,7 @@ import os
 # Caminho do áudio
 audio_path = "audiodipacioli.wav"
 #necessário instalar o ffmpeg e o definir como variavel do sistema
-
+os.environ["PATH"] += os.pathsep + r"C:\Users\guica\Downloads\ffmpeg-2025-03-20-git-76f09ab647-essentials_build\bin"
 
 
 # Nome do arquivo de saída (sem extensão)
