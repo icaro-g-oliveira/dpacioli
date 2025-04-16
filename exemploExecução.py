@@ -1,9 +1,14 @@
 import os
 import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../MIAgents/fundation")))
 
-from sistema import Fluxo
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
+
+
+from MIAgents.fundation.sistema import Fluxo
+
 from efeitos_e_retornos import FolhaProcessada, FolhaProtocolada
 
 class Fluxo(Fluxo):
