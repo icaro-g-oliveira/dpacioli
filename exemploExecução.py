@@ -1,4 +1,15 @@
-from efeitos_e_retornos import Fluxo
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../MIAgents/fundation")))
+
+from sistema import Fluxo
+from efeitos_e_retornos import FolhaProcessada, FolhaProtocolada
+
+class Fluxo(Fluxo):
+    δ_5: FolhaProcessada
+    δ_6: FolhaProtocolada
+
 import json
 # Dados de entrada
 entrada = {

@@ -17,15 +17,3 @@ class FolhaProtocolada(BaseModel):
     protocolo_id: str
     data_protocolo: datetime
     responsavel: Optional[str] = None
-
-
-# Modelo geral
-class Fluxo(BaseModel):
-    α: int
-    β: int
-    γ: int
-    δ: str #A fazer expansão
-    δ_4: str
-    δ_5: FolhaProcessada
-    δ_6: FolhaProtocolada
-    ζ: str#A fazer expansão
